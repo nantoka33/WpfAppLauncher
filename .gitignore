@@ -1,0 +1,42 @@
+# 自動生成されるアプリデータ
+apps.json
+group_order.json
+
+# Visual Studio / .NET 関連
+*.pdb
+*.user
+*.suo
+*.dbmdl
+*.log
+
+
+# アイコンキャッシュ（必要なら）
+iconcache/
+*.ico
+
+# その他（不要なら）
+runtimes/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.cache
+*.v9.bin
+*.vsidx
+*.db
+*.db-shm
+*.db-wal
+*.dtbcache.*
+*.doclayout.*
+
+# IDE generated files
+*.GeneratedMSBuildEditorConfig.editorconfig
+*.g.cs
+*.g.i.cs
+*.baml
+
+# Icon cache
+WpfAppLauncher/bin/Debug/net8.0-windows/iconcache/
+
+
