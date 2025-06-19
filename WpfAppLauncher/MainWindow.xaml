@@ -12,11 +12,9 @@
         <!-- グループ表示スクロールエリア -->
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Name="GroupPanel"
-                        Margin="10"
-                        AllowDrop="True"
-                        PreviewMouseLeftButtonDown="GroupPanel_PreviewMouseLeftButtonDown"
-                        PreviewMouseMove="GroupPanel_PreviewMouseMove"
-                        Drop="GroupPanel_Drop" />
+            Margin="10"
+            AllowDrop="True" />
+
         </ScrollViewer>
     </DockPanel>
 </Window>
