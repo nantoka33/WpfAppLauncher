@@ -25,3 +25,7 @@ C:\WpfAppLauncher\WpfAppLauncher\obj\Debug\net8.0-windows\refint\WpfAppLauncher.
 C:\WpfAppLauncher\WpfAppLauncher\obj\Debug\net8.0-windows\WpfAppLauncher.pdb
 C:\WpfAppLauncher\WpfAppLauncher\obj\Debug\net8.0-windows\WpfAppLauncher.genruntimeconfig.cache
 C:\WpfAppLauncher\WpfAppLauncher\obj\Debug\net8.0-windows\ref\WpfAppLauncher.dll
+C:\WpfAppLauncher\WpfAppLauncher\obj\Debug\net8.0-windows\Themes\BlueTheme.baml
+C:\WpfAppLauncher\WpfAppLauncher\obj\Debug\net8.0-windows\Themes\DarkTheme.baml
+C:\WpfAppLauncher\WpfAppLauncher\obj\Debug\net8.0-windows\Themes\LightTheme.baml
+C:\WpfAppLauncher\WpfAppLauncher\obj\Debug\net8.0-windows\App.baml

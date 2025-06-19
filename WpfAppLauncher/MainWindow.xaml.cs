@@ -31,6 +31,7 @@ namespace WpfAppLauncher
             Directory.CreateDirectory(iconCacheDir);
             LoadApps();
             RenderGroups();
+            AddThemeSwitcher();
         }
 
         private void LoadApps()
@@ -242,8 +243,8 @@ namespace WpfAppLauncher
         {
             var panel = new StackPanel { Orientation = Orientation.Horizontal };
             var label = new Label { Content = groupName, FontWeight = FontWeights.Bold };
+            label.SetResourceReference(Label.ForegroundProperty, "ForegroundBrush");
 
-            // コンテキストメニューを追加
             var contextMenu = new ContextMenu();
             var renameMenuItem = new MenuItem { Header = "グループ名を変更" };
             renameMenuItem.Click += (s, e) =>
@@ -254,13 +255,11 @@ namespace WpfAppLauncher
                     groupName);
                 if (!string.IsNullOrWhiteSpace(newName))
                 {
-                    // apps の Group を一括置換
                     foreach (var app in apps.Where(a => (a.Group ?? "未分類") == groupName))
                     {
                         app.Group = newName.Trim();
                     }
 
-                    // グループ順の置換
                     for (int i = 0; i < groupOrder.Count; i++)
                     {
                         if (groupOrder[i] == groupName)
@@ -280,7 +279,6 @@ namespace WpfAppLauncher
             panel.Children.Add(label);
             return panel;
         }
-
 
         private BitmapImage LoadIcon(AppEntry app)
         {
@@ -350,5 +348,93 @@ namespace WpfAppLauncher
                 currentGroup);
             return string.IsNullOrWhiteSpace(input) ? "未分類" : input.Trim();
         }
+        private void AddThemeSwitcher()
+        {
+            var stackPanel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Margin = new Thickness(5)
+            };
+
+            var lightButton = new Button { Content = "☀", Width = 30, Margin = new Thickness(2) };
+            lightButton.Click += (s, e) => SwitchTheme("LightTheme");
+            var darkButton = new Button { Content = "🌙", Width = 30, Margin = new Thickness(2) };
+            darkButton.Click += (s, e) => SwitchTheme("DarkTheme");
+            var blueButton = new Button { Content = "🔵", Width = 30, Margin = new Thickness(2) };
+            blueButton.Click += (s, e) => SwitchTheme("BlueTheme");
+
+            stackPanel.Children.Add(lightButton);
+            stackPanel.Children.Add(darkButton);
+            stackPanel.Children.Add(blueButton);
+
+            GroupPanel.Children.Insert(0, stackPanel);
+        }
+
+        private void SwitchTheme(string theme)
+        {
+            var dict = new ResourceDictionary();
+            dict.Source = new Uri($"Themes/{theme}.xaml", UriKind.Relative);
+            Application.Current.Resources.MergedDictionaries.Clear();
+            Application.Current.Resources.MergedDictionaries.Add(dict);
+        }
+
+        // ボタンクリックイベント（テーマ切り替え）
+        private void LightTheme_Click(object sender, RoutedEventArgs e) => SwitchTheme("LightTheme");
+        private void DarkTheme_Click(object sender, RoutedEventArgs e) => SwitchTheme("DarkTheme");
+        private void BlueTheme_Click(object sender, RoutedEventArgs e) => SwitchTheme("BlueTheme");
+
+        private void GroupPanel_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            groupDragStartPoint = e.GetPosition(null);
+        }
+
+        private void GroupPanel_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                Point currentPos = e.GetPosition(null);
+                if ((Math.Abs(currentPos.X - groupDragStartPoint.X) > SystemParameters.MinimumHorizontalDragDistance) ||
+                    (Math.Abs(currentPos.Y - groupDragStartPoint.Y) > SystemParameters.MinimumVerticalDragDistance))
+                {
+                    var draggedItem = e.OriginalSource as DependencyObject;
+                    while (draggedItem != null && draggedItem is not GroupBox)
+                    {
+                        draggedItem = VisualTreeHelper.GetParent(draggedItem);
+                    }
+                    if (draggedItem is GroupBox groupBox)
+                    {
+                        draggedGroup = groupBox;
+                        DragDrop.DoDragDrop(groupBox, groupBox, DragDropEffects.Move);
+                    }
+                }
+            }
+        }
+
+        private void GroupPanel_Drop(object sender, DragEventArgs e)
+        {
+            if (draggedGroup == null) return;
+            var target = e.OriginalSource as DependencyObject;
+            while (target != null && target is not GroupBox)
+            {
+                target = VisualTreeHelper.GetParent(target);
+            }
+            if (target is GroupBox targetGroup)
+            {
+                int oldIndex = GroupPanel.Children.IndexOf(draggedGroup);
+                int newIndex = GroupPanel.Children.IndexOf(targetGroup);
+                if (oldIndex >= 0 && newIndex >= 0 && oldIndex != newIndex)
+                {
+                    GroupPanel.Children.Remove(draggedGroup);
+                    GroupPanel.Children.Insert(newIndex, draggedGroup);
+                    groupOrder = GroupPanel.Children.OfType<GroupBox>()
+                        .Select(g => ((Label)((StackPanel)g.Header).Children[0]).Content?.ToString() ?? "未分類")
+                        .ToList();
+                    File.WriteAllText(groupOrderPath, JsonSerializer.Serialize(groupOrder));
+                }
+            }
+            draggedGroup = null;
+        }
+
     }
 }

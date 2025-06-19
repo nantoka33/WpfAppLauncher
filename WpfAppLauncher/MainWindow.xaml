@@ -1,12 +1,22 @@
 ﻿<Window x:Class="WpfAppLauncher.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="アプリランチャー"
-        Height="500" Width="650"
+        Title="アプリランチャー" Height="650" Width="800"
         AllowDrop="True"
         Drop="Window_Drop"
-        DragEnter="Window_DragEnter">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Name="GroupPanel" Margin="10"/>
-    </ScrollViewer>
+        DragEnter="Window_DragEnter"
+        Background="{DynamicResource BackgroundBrush}"
+        Foreground="{DynamicResource ForegroundBrush}">
+
+    <DockPanel>
+        <!-- グループ表示スクロールエリア -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Name="GroupPanel"
+                        Margin="10"
+                        AllowDrop="True"
+                        PreviewMouseLeftButtonDown="GroupPanel_PreviewMouseLeftButtonDown"
+                        PreviewMouseMove="GroupPanel_PreviewMouseMove"
+                        Drop="GroupPanel_Drop" />
+        </ScrollViewer>
+    </DockPanel>
 </Window>
