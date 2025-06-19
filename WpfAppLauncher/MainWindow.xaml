@@ -1,8 +1,11 @@
 ﻿<Window x:Class="WpfAppLauncher.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="アプリランチャー" Height="500" Width="650"
-        AllowDrop="True" Drop="Window_Drop" DragEnter="Window_DragEnter">
+        Title="アプリランチャー"
+        Height="500" Width="650"
+        AllowDrop="True"
+        Drop="Window_Drop"
+        DragEnter="Window_DragEnter">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Name="GroupPanel" Margin="10"/>
     </ScrollViewer>

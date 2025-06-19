@@ -7,7 +7,9 @@ using System.Linq;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using System.Windows.Media;
 
 namespace WpfAppLauncher
 {
@@ -18,6 +20,10 @@ namespace WpfAppLauncher
         private readonly string groupOrderPath = "group_order.json";
         private List<string> groupOrder = new();
         private readonly string iconCacheDir = "iconcache";
+        private UIElement? draggedGroup;
+        private StackPanel? draggedIcon;
+        private Point groupDragStartPoint;
+        private Point iconDragStartPoint;
 
         public MainWindow()
         {
@@ -47,24 +53,57 @@ namespace WpfAppLauncher
             File.WriteAllText(groupOrderPath, JsonSerializer.Serialize(groupOrder));
         }
 
-        private UIElement? draggedGroup = null!;
-
         private void RenderGroups()
         {
             GroupPanel.Children.Clear();
             if (groupOrder.Count == 0)
                 groupOrder = apps.Select(a => a.Group ?? "未分類").Distinct().ToList();
+
             var groups = apps.GroupBy(a => a.Group ?? "未分類")
                 .OrderBy(g => groupOrder.IndexOf(g.Key) >= 0 ? groupOrder.IndexOf(g.Key) : int.MaxValue)
                 .ThenBy(g => g.Key);
+
             foreach (var group in groups)
             {
                 var groupBox = new GroupBox
                 {
                     Header = CreateGroupHeader(group.Key),
-                    Margin = new Thickness(0, 0, 0, 10)
+                    Margin = new Thickness(0, 0, 0, 10),
+                    AllowDrop = true
                 };
-                var wrap = new WrapPanel();
+
+                groupBox.PreviewMouseLeftButtonDown += (s, e) => {
+                    groupDragStartPoint = e.GetPosition(null);
+                    draggedGroup = groupBox;
+                };
+                groupBox.PreviewMouseMove += (s, e) => {
+                    if (e.LeftButton == MouseButtonState.Pressed)
+                    {
+                        Point currentPos = e.GetPosition(null);
+                        if ((Math.Abs(currentPos.X - groupDragStartPoint.X) > SystemParameters.MinimumHorizontalDragDistance) ||
+                            (Math.Abs(currentPos.Y - groupDragStartPoint.Y) > SystemParameters.MinimumVerticalDragDistance))
+                        {
+                            DragDrop.DoDragDrop(groupBox, groupBox, DragDropEffects.Move);
+                        }
+                    }
+                };
+                groupBox.Drop += (s, e) => {
+                    if (draggedGroup == null || draggedGroup == groupBox) return;
+                    int oldIndex = GroupPanel.Children.IndexOf(draggedGroup);
+                    int newIndex = GroupPanel.Children.IndexOf(groupBox);
+                    if (oldIndex >= 0 && newIndex >= 0)
+                    {
+                        GroupPanel.Children.Remove(draggedGroup);
+                        GroupPanel.Children.Insert(newIndex, draggedGroup);
+                        groupOrder = GroupPanel.Children.OfType<GroupBox>()
+                            .Select(g => ((Label)((StackPanel)g.Header).Children[0]).Content?.ToString() ?? "未分類")
+                            .ToList();
+                        SaveApps();
+                    }
+                    draggedGroup = null;
+                };
+
+                var wrap = new WrapPanel { AllowDrop = true };
 
                 foreach (var app in group)
                 {
@@ -87,10 +126,7 @@ namespace WpfAppLauncher
                         var path = ((AppEntry)((Button)s).Tag).Path;
                         if (!string.IsNullOrEmpty(path) && File.Exists(path))
                         {
-                            var psi = new ProcessStartInfo(path)
-                            {
-                                UseShellExecute = true
-                            };
+                            var psi = new ProcessStartInfo(path) { UseShellExecute = true };
                             Process.Start(psi);
                         }
                         else
@@ -106,14 +142,13 @@ namespace WpfAppLauncher
                         SaveApps();
                         RenderGroups();
                     };
-
                     var renameItem = new MenuItem { Header = "名前変更" };
                     renameItem.Click += (s, e) => {
                         var appEntry = (AppEntry)btn.Tag;
                         string newName = Microsoft.VisualBasic.Interaction.InputBox(
-                        $"「{appEntry.Name ?? "アプリ"}」の新しい名前を入力してください：",
-                        "名前の変更",
-                        appEntry.Name ?? "アプリ");
+                            $"「{appEntry.Name ?? "アプリ"}」の新しい名前を入力してください：",
+                            "名前の変更",
+                            appEntry.Name ?? "アプリ");
                         if (!string.IsNullOrWhiteSpace(newName))
                         {
                             appEntry.Name = newName.Trim();
@@ -121,7 +156,6 @@ namespace WpfAppLauncher
                             RenderGroups();
                         }
                     };
-
                     var editGroupItem = new MenuItem { Header = "グループ変更" };
                     editGroupItem.Click += (s, e) => {
                         var appEntry = (AppEntry)btn.Tag;
@@ -130,18 +164,13 @@ namespace WpfAppLauncher
                         SaveApps();
                         RenderGroups();
                     };
-
                     var runAsAdminItem = new MenuItem { Header = "管理者として実行" };
                     runAsAdminItem.Click += (s, e) => {
                         var appEntry = (AppEntry)btn.Tag;
                         var path = appEntry.Path;
                         if (!string.IsNullOrEmpty(path) && File.Exists(path))
                         {
-                            var psi = new ProcessStartInfo(path)
-                            {
-                                UseShellExecute = true,
-                                Verb = "runas"
-                            };
+                            var psi = new ProcessStartInfo(path) { UseShellExecute = true, Verb = "runas" };
                             try { Process.Start(psi); }
                             catch { MessageBox.Show("管理者としての実行が拒否されました。", "実行キャンセル", MessageBoxButton.OK, MessageBoxImage.Warning); }
                         }
@@ -153,7 +182,6 @@ namespace WpfAppLauncher
 
                     contextMenu.Items.Add(runAsAdminItem);
                     contextMenu.Items.Add(renameItem);
-
                     contextMenu.Items.Add(editGroupItem);
                     contextMenu.Items.Add(deleteItem);
                     btn.ContextMenu = contextMenu;
@@ -161,26 +189,51 @@ namespace WpfAppLauncher
                     stack.Children.Add(img);
                     stack.Children.Add(btn);
                     wrap.Children.Add(stack);
+
+                    stack.PreviewMouseLeftButtonDown += (s, e) => {
+                        iconDragStartPoint = e.GetPosition(null);
+                        draggedIcon = stack;
+                    };
+                    stack.PreviewMouseMove += (s, e) => {
+                        if (e.LeftButton == MouseButtonState.Pressed)
+                        {
+                            Point currentPos = e.GetPosition(null);
+                            if ((Math.Abs(currentPos.X - iconDragStartPoint.X) > SystemParameters.MinimumHorizontalDragDistance) ||
+                                (Math.Abs(currentPos.Y - iconDragStartPoint.Y) > SystemParameters.MinimumVerticalDragDistance))
+                            {
+                                DragDrop.DoDragDrop(stack, stack, DragDropEffects.Move);
+                            }
+                        }
+                    };
                 }
 
-                groupBox.Content = wrap;
-                groupBox.AllowDrop = true;
-                groupBox.PreviewMouseDown += (s, e) => draggedGroup = groupBox;
-                groupBox.Drop += (s, e) => {
-                    if (draggedGroup == null || draggedGroup == groupBox) return;
-                    int oldIndex = GroupPanel.Children.IndexOf(draggedGroup);
-                    int newIndex = GroupPanel.Children.IndexOf(groupBox);
-                    if (oldIndex >= 0 && newIndex >= 0)
+                wrap.Drop += (s, e) => {
+                    if (draggedIcon == null) return;
+                    var target = e.OriginalSource as DependencyObject;
+                    while (target != null && !(target is StackPanel panel && wrap.Children.Contains(panel)))
+                        target = VisualTreeHelper.GetParent(target);
+                    if (target is StackPanel targetPanel)
                     {
-                        GroupPanel.Children.Remove(draggedGroup);
-                        GroupPanel.Children.Insert(newIndex, draggedGroup);
-                        groupOrder = GroupPanel.Children.OfType<GroupBox>()
-                    .Select(g => ((Label)((StackPanel)g.Header).Children[0]).Content?.ToString() ?? "未分類")
-                    .ToList();
-                        SaveApps();
+                        int oldIndex = wrap.Children.IndexOf(draggedIcon);
+                        int newIndex = wrap.Children.IndexOf(targetPanel);
+                        if (oldIndex >= 0 && newIndex >= 0)
+                        {
+                            wrap.Children.Remove(draggedIcon);
+                            wrap.Children.Insert(newIndex, draggedIcon);
+
+                            var reordered = wrap.Children.OfType<StackPanel>()
+                                .Select(sp => (AppEntry)((Button)sp.Children[1]).Tag).ToList();
+
+                            var groupName = group.Key;
+                            apps.RemoveAll(a => a.Group == groupName);
+                            apps.AddRange(reordered);
+                            SaveApps();
+                        }
                     }
-                    draggedGroup = null;
+                    draggedIcon = null;
                 };
+
+                groupBox.Content = wrap;
                 GroupPanel.Children.Add(groupBox);
             }
         }
@@ -203,7 +256,6 @@ namespace WpfAppLauncher
             {
                 try
                 {
-                    if (string.IsNullOrEmpty(app.Path)) throw new ArgumentNullException(nameof(app.Path));
                     if (string.IsNullOrEmpty(app.Path)) throw new ArgumentNullException(nameof(app.Path));
                     DrawingIcon? icon = DrawingIcon.ExtractAssociatedIcon(app.Path);
                     if (icon == null) throw new InvalidOperationException($"アイコンを取得できません: {app.Path}");
@@ -230,22 +282,29 @@ namespace WpfAppLauncher
 
         private void Window_Drop(object sender, DragEventArgs e)
         {
-            var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return;
+
+            var dropped = e.Data.GetData(DataFormats.FileDrop);
+            if (dropped is not string[] files || files.Length == 0) return;
+
+            var allowedExtensions = new[] { ".exe", ".bat", ".lnk" };
+
             foreach (var file in files)
             {
-                var allowedExtensions = new[] { ".exe", ".bat", ".lnk" };
                 if (File.Exists(file) && allowedExtensions.Contains(Path.GetExtension(file).ToLower()))
                 {
                     string name = Path.GetFileNameWithoutExtension(file);
                     string group = PromptGroupInput(name);
                     var app = new AppEntry { Name = name, Path = file, Group = group };
                     apps.Add(app);
-                    LoadIcon(app); // アイコンキャッシュ生成
+                    LoadIcon(app);
                 }
             }
+
             SaveApps();
             RenderGroups();
         }
+
 
         private string PromptGroupInput(string appName = "アプリ", string currentGroup = "未分類")
         {
