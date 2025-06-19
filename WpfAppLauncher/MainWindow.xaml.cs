@@ -242,9 +242,45 @@ namespace WpfAppLauncher
         {
             var panel = new StackPanel { Orientation = Orientation.Horizontal };
             var label = new Label { Content = groupName, FontWeight = FontWeights.Bold };
+
+            // コンテキストメニューを追加
+            var contextMenu = new ContextMenu();
+            var renameMenuItem = new MenuItem { Header = "グループ名を変更" };
+            renameMenuItem.Click += (s, e) =>
+            {
+                string newName = Microsoft.VisualBasic.Interaction.InputBox(
+                    $"「{groupName}」の新しいグループ名を入力してください：",
+                    "グループ名の変更",
+                    groupName);
+                if (!string.IsNullOrWhiteSpace(newName))
+                {
+                    // apps の Group を一括置換
+                    foreach (var app in apps.Where(a => (a.Group ?? "未分類") == groupName))
+                    {
+                        app.Group = newName.Trim();
+                    }
+
+                    // グループ順の置換
+                    for (int i = 0; i < groupOrder.Count; i++)
+                    {
+                        if (groupOrder[i] == groupName)
+                        {
+                            groupOrder[i] = newName.Trim();
+                            break;
+                        }
+                    }
+
+                    SaveApps();
+                    RenderGroups();
+                }
+            };
+            contextMenu.Items.Add(renameMenuItem);
+
+            label.ContextMenu = contextMenu;
             panel.Children.Add(label);
             return panel;
         }
+
 
         private BitmapImage LoadIcon(AppEntry app)
         {
