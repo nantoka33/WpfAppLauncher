@@ -1,5 +1,16 @@
-# WpfAppLauncher
-.exe、.bat、.lnkをグループ登録して起動一括管理するアプリケーション
+## 📦 WpfAppLauncher v1.0.0
+
+.exe、.bat、.lnk をグループ登録して一括起動・管理できるアプリケーションです。  
+よく使うツールやスクリプトをグループごとに整理し、クリックひとつでまとめて起動できます。  
+タスクバーに常駐し、日々の作業を効率化します。
+
+---
+
+This application allows you to register and group `.exe`, `.bat`, and `.lnk` files  
+and launch them all at once.  
+Organize your favorite tools or scripts into groups and launch them with a single click.  
+Resides in the system tray for quick access and productivity.
+
 
 アプリケーション：release/WpfAppLauncher.exe
 
