@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WpfAppLauncher")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+988306eaa09f01c8535aab04551e2b6d570a93d4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+036fd604eaa253c4b8ba39a11403bb4dcf9262e0")]
 [assembly: System.Reflection.AssemblyProductAttribute("WpfAppLauncher")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WpfAppLauncher")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
