@@ -39,4 +39,12 @@ runtimes/
 # Icon cache
 WpfAppLauncher/bin/Debug/net8.0-windows/iconcache/
 
+# ビルド出力
+bin/
+obj/
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
 

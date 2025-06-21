@@ -1,8 +1,9 @@
-﻿using System.IO;
+﻿using Microsoft.VisualBasic;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using Microsoft.VisualBasic;
+using WpfAppLauncher.Views;
 
 namespace WpfAppLauncher.Services
 {
@@ -39,11 +40,17 @@ namespace WpfAppLauncher.Services
 
         public static string PromptGroupInput(string appName = "アプリ", string currentGroup = "未分類")
         {
-            var input = Interaction.InputBox(
-                $"「{appName}」のグループ名を入力してください：",
-                "グループ名の入力",
-                currentGroup);
-            return string.IsNullOrWhiteSpace(input) ? "未分類" : input.Trim();
+            var groupList = App.Current.Windows
+                .OfType<MainWindow>()
+                .FirstOrDefault()?.GetGroupList() ?? new List<string>();
+
+            var dialog = new PromptGroupInputWindow(groupList, currentGroup)
+            {
+                Owner = Application.Current.MainWindow
+            };
+
+            return dialog.ShowDialog() == true ? dialog.GroupName : "未分類";
         }
+
     }
 }
