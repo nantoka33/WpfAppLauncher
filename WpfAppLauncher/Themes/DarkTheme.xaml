@@ -2,4 +2,5 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <SolidColorBrush x:Key="BackgroundBrush" Color="#222222"/>
     <SolidColorBrush x:Key="ForegroundBrush" Color="White"/>
+    <SolidColorBrush x:Key="TextBoxBackgroundBrush" Color="#2D2D30"/>
 </ResourceDictionary>

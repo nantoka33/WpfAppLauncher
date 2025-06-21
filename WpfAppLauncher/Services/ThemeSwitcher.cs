@@ -8,13 +8,6 @@ namespace WpfAppLauncher.Services
     {
         public static void AddThemeSwitcher(Panel targetPanel, Action<string> onThemeChange)
         {
-            var stackPanel = new StackPanel
-            {
-                Orientation = Orientation.Horizontal,
-                HorizontalAlignment = HorizontalAlignment.Right,
-                Margin = new Thickness(5)
-            };
-
             var lightButton = new Button { Content = "☀", Width = 30, Margin = new Thickness(2) };
             var darkButton = new Button { Content = "🌙", Width = 30, Margin = new Thickness(2) };
             var blueButton = new Button { Content = "🔵", Width = 30, Margin = new Thickness(2) };
@@ -23,11 +16,9 @@ namespace WpfAppLauncher.Services
             darkButton.Click += (s, e) => onThemeChange("DarkTheme");
             blueButton.Click += (s, e) => onThemeChange("BlueTheme");
 
-            stackPanel.Children.Add(lightButton);
-            stackPanel.Children.Add(darkButton);
-            stackPanel.Children.Add(blueButton);
-
-            targetPanel.Children.Insert(0, stackPanel);
+            targetPanel.Children.Add(lightButton);
+            targetPanel.Children.Add(darkButton);
+            targetPanel.Children.Add(blueButton);
         }
 
         public static void SwitchTheme(string theme)

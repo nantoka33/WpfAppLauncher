@@ -28,7 +28,7 @@ namespace WpfAppLauncher
             groupRenderer = new GroupRenderer(apps, groupOrder, savePath, groupOrderPath, iconCacheDir, GroupPanel);
             groupRenderer.RenderGroups();
 
-            ThemeSwitcher.AddThemeSwitcher(GroupPanel, ThemeSwitcher.SwitchTheme);
+            ThemeSwitcher.AddThemeSwitcher(ThemePanel, ThemeSwitcher.SwitchTheme);
         }
 
         private void Window_DragEnter(object sender, DragEventArgs e)
@@ -52,5 +52,11 @@ namespace WpfAppLauncher
         private void LightTheme_Click(object sender, RoutedEventArgs e) => ThemeSwitcher.SwitchTheme("LightTheme");
         private void DarkTheme_Click(object sender, RoutedEventArgs e) => ThemeSwitcher.SwitchTheme("DarkTheme");
         private void BlueTheme_Click(object sender, RoutedEventArgs e) => ThemeSwitcher.SwitchTheme("BlueTheme");
+
+        public List<string> GetGroupList()
+        {
+            return apps.Select(a => a.Group ?? "未分類").Distinct().ToList();
+        }
+
     }
 }
