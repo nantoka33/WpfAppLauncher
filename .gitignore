@@ -1,6 +1,8 @@
 # 自動生成されるアプリデータ
 apps.json
 group_order.json
+config.json
+recent_projects.json
 
 # Visual Studio / .NET 関連
 *.pdb
@@ -9,18 +11,14 @@ group_order.json
 *.dbmdl
 *.log
 
-
-# アイコンキャッシュ（必要なら）
-iconcache/
-*.ico
-
-# その他（不要なら）
-runtimes/
+# ビルド出力
+bin/
+obj/
+*.dll
+*.exe
 
 # Visual Studio
 .vs/
-*.user
-*.suo
 *.cache
 *.v9.bin
 *.vsidx
@@ -36,22 +34,17 @@ runtimes/
 *.g.i.cs
 *.baml
 
-# Icon cache
+# アイコンキャッシュなど（ただしプロジェクト用アイコンは除外しない）
+iconcache/
 WpfAppLauncher/bin/Debug/net8.0-windows/iconcache/
+*.ico
+!Assets/app_launcher_icon.ico
 
-# ビルド出力
-bin/
-obj/
-bin/
-obj/
-*.dll
-*.exe
-*.pdb
+# その他（不要なら）
+runtimes/
 
-
+# リリース系
 make_release.bat
 *.zip
 release_temp/
 WpfAppLauncher_ver_*/
-config.json
-recent_projects.json

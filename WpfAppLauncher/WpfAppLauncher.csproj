@@ -6,12 +6,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>bin\Debug\net8.0-windows\app_launcher_icon.ico</ApplicationIcon>
+    <ApplicationIcon>app_launcher_icon.ico</ApplicationIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="bin\Debug\net8.0-windows\app_launcher_icon.ico" />
+    <Content Include="app_launcher_icon.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,6 +28,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="System.Drawing.Common" Version="9.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="bin\Debug\net8.0-windows\" />
   </ItemGroup>
 
 </Project>
