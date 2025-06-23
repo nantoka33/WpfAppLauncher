@@ -38,7 +38,7 @@ obj/
 iconcache/
 WpfAppLauncher/bin/Debug/net8.0-windows/iconcache/
 *.ico
-!Assets/app_launcher_icon.ico
+!app_launcher_icon.ico
 
 # その他（不要なら）
 runtimes/
