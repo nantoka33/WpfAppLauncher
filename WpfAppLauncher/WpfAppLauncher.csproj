@@ -6,12 +6,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>app_launcher_icon.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\app_launcher_icon.ico</ApplicationIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="app_launcher_icon.ico" />
+    <Content Include="Assets\app_launcher_icon.ico" />
   </ItemGroup>
 
   <ItemGroup>
