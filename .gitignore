@@ -53,3 +53,5 @@ make_release.bat
 *.zip
 release_temp/
 WpfAppLauncher_ver_*/
+config.json
+recent_projects.json
