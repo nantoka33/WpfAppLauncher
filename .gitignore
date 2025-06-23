@@ -48,3 +48,8 @@ obj/
 *.exe
 *.pdb
 
+
+make_release.bat
+*.zip
+release_temp/
+WpfAppLauncher_ver_*/
