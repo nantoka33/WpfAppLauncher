@@ -9,24 +9,20 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
 
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v2
+      - name: Restore dependencies
+        run: dotnet restore
 
-    - name: Restore NuGet packages
-      run: msbuild WpfAppLauncher.sln /t:Restore
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
 
-    - name: Build project
-      run: msbuild WpfAppLauncher.sln /p:Configuration=Release
-
-    - name: Run tests
-      run: dotnet test WpfAppLauncher.Tests/WpfAppLauncher.Tests.csproj --no-build --verbosity normal
+      - name: Test
+        run: dotnet test --configuration Release --no-restore --verbosity normal
