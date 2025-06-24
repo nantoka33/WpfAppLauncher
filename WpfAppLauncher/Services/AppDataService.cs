@@ -23,6 +23,12 @@ namespace WpfAppLauncher.Services
                 groupOrder = JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
             }
 
+            if (groupOrder.Count == 0 && apps.Count > 0)
+            {
+                groupOrder = apps.Select(a => a.Group ?? "未分類").Distinct().ToList();
+                File.WriteAllText(groupOrderPath, JsonSerializer.Serialize(groupOrder));
+            }
+
             return apps;
         }
 

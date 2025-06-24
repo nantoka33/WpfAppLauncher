@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -58,5 +59,13 @@ namespace WpfAppLauncher
             return apps.Select(a => a.Group ?? "未分類").Distinct().ToList();
         }
 
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (groupRenderer != null)
+            {
+                // グループの順番だけ保存（apps の保存はここでは不要）
+                File.WriteAllText(groupOrderPath, JsonSerializer.Serialize(groupOrder));
+            }
+        }
     }
 }
