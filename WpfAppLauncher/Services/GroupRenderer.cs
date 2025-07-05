@@ -163,10 +163,26 @@ namespace WpfAppLauncher.Services
                             MessageBox.Show($"パスが無効か存在しません：{path}", "起動エラー", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                     };
+                    var changePathItem = new MenuItem { Header = "パス変更" };
+                    changePathItem.Click += (s, e) =>
+                    {
+                        var appEntry = (AppEntry)btn.Tag;
+                        string newPath = Interaction.InputBox($"「{appEntry.Name ?? "アプリ"}」の新しいパスを入力してください：", "パスの変更", appEntry.Path ?? "アプリ");
+                        if (!string.IsNullOrWhiteSpace(newPath) && File.Exists(newPath))
+                        {
+                            appEntry.Path = newPath.Trim();
+                            SaveAndRender();
+                        }
+                        else 
+                        {
+                            MessageBox.Show($"指定されたパスは無効です：{newPath}", "パスエラー", MessageBoxButton.OK, MessageBoxImage.Error); 
+                        }
+                    };
                     contextMenu.Items.Add(adminRunItem);
                     contextMenu.Items.Add(renameItem);
                     contextMenu.Items.Add(groupEditItem);
                     contextMenu.Items.Add(deleteItem);
+                    contextMenu.Items.Add(changePathItem);
                     btn.ContextMenu = contextMenu;
 
                     stack.Children.Add(img);
