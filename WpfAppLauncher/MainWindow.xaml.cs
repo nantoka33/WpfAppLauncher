@@ -12,15 +12,23 @@ namespace WpfAppLauncher
     {
         private List<AppEntry> apps = new();
         private List<string> groupOrder = new();
-        private readonly string savePath = "apps.json";
-        private readonly string groupOrderPath = "group_order.json";
-        private readonly string iconCacheDir = "iconcache";
+        private readonly string appDataDir = Path.Combine(
+                                             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WpfAppLauncher");
+        private readonly string savePath;
+        private readonly string groupOrderPath;
+        private readonly string iconCacheDir;
+
 
         private GroupRenderer? groupRenderer;
 
         public MainWindow()
         {
             InitializeComponent();
+
+            Directory.CreateDirectory(appDataDir); // AppData/WpfAppLauncher を作成
+            savePath = Path.Combine(appDataDir, "apps.json");
+            groupOrderPath = Path.Combine(appDataDir, "group_order.json");
+            iconCacheDir = Path.Combine(appDataDir, "iconcache");
 
             Directory.CreateDirectory(iconCacheDir);
 
@@ -31,6 +39,7 @@ namespace WpfAppLauncher
 
             ThemeSwitcher.AddThemeSwitcher(ThemePanel, ThemeSwitcher.SwitchTheme);
         }
+
 
         private void Window_DragEnter(object sender, DragEventArgs e)
         {
