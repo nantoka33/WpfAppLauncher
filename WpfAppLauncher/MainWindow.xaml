@@ -12,12 +12,25 @@
 
     <DockPanel>
 
-        <!-- 固定テーマ切り替えパネル -->
-        <StackPanel x:Name="ThemePanel"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Right"
-                    DockPanel.Dock="Top"
-                    Margin="10" />
+        <!-- 上部コマンドバー -->
+        <Grid DockPanel.Dock="Top" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="ExtensionManagerButton"
+                    Content="拡張機能..."
+                    Padding="12,4"
+                    Margin="0,0,10,0"
+                    HorizontalAlignment="Left"
+                    Click="ExtensionManagerButton_Click" />
+
+            <StackPanel x:Name="ThemePanel"
+                        Orientation="Horizontal"
+                        Grid.Column="1"
+                        HorizontalAlignment="Right" />
+        </Grid>
 
         <!-- グループ表示スクロール領域 -->
         <ScrollViewer VerticalScrollBarVisibility="Auto">
