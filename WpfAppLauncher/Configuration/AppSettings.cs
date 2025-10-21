@@ -26,12 +26,8 @@ namespace WpfAppLauncher.Configuration
     public class ThemeSettings
     {
         public string Default { get; set; } = "LightTheme";
-        public List<ThemeOption> Options { get; set; } = new()
-        {
-            new ThemeOption { Name = "LightTheme", Icon = "☀", Tooltip = "ライトテーマ" },
-            new ThemeOption { Name = "DarkTheme", Icon = "🌙", Tooltip = "ダークテーマ" },
-            new ThemeOption { Name = "BlueTheme", Icon = "🔵", Tooltip = "ブルーテーマ" },
-        };
+        public string StateFileName { get; set; } = "theme.json";
+        public List<ThemeOption> Options { get; set; } = new();
     }
 
     public class ThemeOption

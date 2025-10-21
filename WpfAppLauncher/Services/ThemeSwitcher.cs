@@ -13,9 +13,16 @@ namespace WpfAppLauncher.Services
         {
             targetPanel.Children.Clear();
 
+            var addedThemeNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
             foreach (var option in themeOptions ?? Enumerable.Empty<ThemeOption>())
             {
                 if (string.IsNullOrWhiteSpace(option.Name))
+                {
+                    continue;
+                }
+
+                if (!addedThemeNames.Add(option.Name))
                 {
                     continue;
                 }
