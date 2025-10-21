@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfAppLauncher", "WpfAppLauncher\WpfAppLauncher.csproj", "{D286BFE6-2FD5-4666-BD82-1DD69C3E993F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfAppLauncher.Tests", "WpfAppLauncher.Tests\WpfAppLauncher.Tests.csproj", "{3EBAD921-6FD5-4341-A3B0-C15AFC59FF26}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D286BFE6-2FD5-4666-BD82-1DD69C3E993F} = {D286BFE6-2FD5-4666-BD82-1DD69C3E993F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
