@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using WpfAppLauncher.Configuration;
+using WpfAppLauncher.Extensions;
 using WpfAppLauncher.Services;
 
 namespace WpfAppLauncher
@@ -59,6 +60,12 @@ namespace WpfAppLauncher
             {
                 ThemeSwitcher.SwitchTheme(settings.Themes.Default);
             }
+
+            ExtensionManagerButton.IsEnabled = ExtensionHost.IsInitialized;
+            if (!ExtensionHost.IsInitialized)
+            {
+                ExtensionManagerButton.ToolTip = "拡張機能の初期化に失敗しました。ログを確認してください。";
+            }
         }
 
         private void Window_DragEnter(object sender, DragEventArgs e)
@@ -90,6 +97,22 @@ namespace WpfAppLauncher
             {
                 File.WriteAllText(groupOrderPath, JsonSerializer.Serialize(groupOrder));
             }
+        }
+
+        private void ExtensionManagerButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!ExtensionHost.IsInitialized)
+            {
+                MessageBox.Show(this, "拡張機能システムが初期化されていないため、管理画面を開けません。", "拡張機能", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var window = new ExtensionManagerWindow
+            {
+                Owner = this,
+            };
+
+            window.ShowDialog();
         }
     }
 }

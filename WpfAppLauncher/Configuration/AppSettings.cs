@@ -7,6 +7,7 @@ namespace WpfAppLauncher.Configuration
         public AppDataSettings AppData { get; set; } = new();
         public DragDropSettings DragDrop { get; set; } = new();
         public ThemeSettings Themes { get; set; } = new();
+        public ExtensionSettings Extensions { get; set; } = new();
     }
 
     public class AppDataSettings
@@ -38,5 +39,15 @@ namespace WpfAppLauncher.Configuration
         public string Name { get; set; } = string.Empty;
         public string? Icon { get; set; }
         public string? Tooltip { get; set; }
+    }
+
+    public class ExtensionSettings
+    {
+        public string DirectoryName { get; set; } = "Extensions";
+        public string DataDirectoryName { get; set; } = "Extensions";
+        public string SearchPattern { get; set; } = "*.Extension.dll";
+        public string StateFileName { get; set; } = "extensions.json";
+        public bool WatchForChanges { get; set; } = true;
+        public List<string> Disabled { get; set; } = new();
     }
 }

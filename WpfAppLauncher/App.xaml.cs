@@ -6,6 +6,8 @@ using System.Windows.Threading;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Events;
+using WpfAppLauncher.Configuration;
+using WpfAppLauncher.Extensions;
 
 namespace WpfAppLauncher
 {
@@ -15,6 +17,7 @@ namespace WpfAppLauncher
     public partial class App : Application
     {
         private Serilog.ILogger? _logger;
+        private ExtensionManager? _extensionManager;
         private string? _logDirectory;
 
         protected override void OnStartup(StartupEventArgs e)
@@ -23,6 +26,7 @@ namespace WpfAppLauncher
             {
                 ConfigureLogging();
                 RegisterGlobalExceptionHandlers();
+                InitializeExtensions();
 
                 _logger?.Information("Application starting. Arguments: {Arguments}", e.Args);
 
@@ -39,8 +43,29 @@ namespace WpfAppLauncher
         protected override void OnExit(ExitEventArgs e)
         {
             _logger?.Information("Application exiting with code {ExitCode}.", e.ApplicationExitCode);
+            ExtensionHost.Shutdown();
             base.OnExit(e);
             Log.CloseAndFlush();
+        }
+
+        private void InitializeExtensions()
+        {
+            try
+            {
+                var settings = AppConfiguration.Current;
+                var logger = Log.ForContext<ExtensionManager>();
+                var manager = new ExtensionManager(settings, AppConfiguration.Configuration, logger);
+                manager.Initialize();
+                ExtensionHost.Initialize(manager);
+                _extensionManager = manager;
+
+                var count = manager.GetExtensionsSnapshot().Count;
+                _logger?.Information("Extension manager initialized. {ExtensionCount} extension(s) discovered.", count);
+            }
+            catch (Exception ex)
+            {
+                _logger?.Error(ex, "拡張機能の初期化に失敗しました。拡張機能は無効化されます。");
+            }
         }
 
         private void ConfigureLogging()
