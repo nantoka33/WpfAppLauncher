@@ -1,35 +1,51 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using WpfAppLauncher.Configuration;
 using WpfAppLauncher.Services;
 
 namespace WpfAppLauncher
 {
     public partial class MainWindow : Window
     {
-        private List<AppEntry> apps = new();
-        private List<string> groupOrder = new();
-        private readonly string appDataDir = Path.Combine(
-                                             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WpfAppLauncher");
+        private readonly AppSettings settings;
+        private readonly string appDataDir;
         private readonly string savePath;
         private readonly string groupOrderPath;
         private readonly string iconCacheDir;
+        private readonly string[] allowedExtensions;
 
-
+        private List<AppEntry> apps = new();
+        private List<string> groupOrder = new();
         private GroupRenderer? groupRenderer;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            Directory.CreateDirectory(appDataDir); // AppData/WpfAppLauncher を作成
-            savePath = Path.Combine(appDataDir, "apps.json");
-            groupOrderPath = Path.Combine(appDataDir, "group_order.json");
-            iconCacheDir = Path.Combine(appDataDir, "iconcache");
+            settings = AppConfiguration.Current;
 
+            appDataDir = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                settings.AppData.ApplicationDirectoryName);
+            savePath = Path.Combine(appDataDir, settings.AppData.AppsFileName);
+            groupOrderPath = Path.Combine(appDataDir, settings.AppData.GroupOrderFileName);
+            iconCacheDir = Path.Combine(appDataDir, settings.AppData.IconCacheDirectoryName);
+            allowedExtensions = settings.DragDrop.AllowedExtensions
+                .Select(extension =>
+                    string.IsNullOrWhiteSpace(extension)
+                        ? string.Empty
+                        : (extension.StartsWith(".") ? extension : $".{extension}").ToLowerInvariant())
+                .Where(extension => !string.IsNullOrWhiteSpace(extension))
+                .Distinct()
+                .ToArray();
+
+            Directory.CreateDirectory(appDataDir);
             Directory.CreateDirectory(iconCacheDir);
 
             apps = AppDataService.LoadApps(savePath, groupOrderPath, out groupOrder);
@@ -37,9 +53,13 @@ namespace WpfAppLauncher
             groupRenderer = new GroupRenderer(apps, groupOrder, savePath, groupOrderPath, iconCacheDir, GroupPanel);
             groupRenderer.RenderGroups();
 
-            ThemeSwitcher.AddThemeSwitcher(ThemePanel, ThemeSwitcher.SwitchTheme);
-        }
+            ThemeSwitcher.AddThemeSwitcher(ThemePanel, settings.Themes.Options, ThemeSwitcher.SwitchTheme);
 
+            if (!string.IsNullOrWhiteSpace(settings.Themes.Default))
+            {
+                ThemeSwitcher.SwitchTheme(settings.Themes.Default);
+            }
+        }
 
         private void Window_DragEnter(object sender, DragEventArgs e)
         {
@@ -51,17 +71,13 @@ namespace WpfAppLauncher
             DropHandler.HandleDrop(
                 e,
                 ref apps,
-                new[] { ".exe", ".bat", ".lnk" },
+                allowedExtensions,
                 iconCacheDir,
                 savePath,
                 groupOrderPath,
                 () => groupRenderer?.RenderGroups()
             );
         }
-
-        private void LightTheme_Click(object sender, RoutedEventArgs e) => ThemeSwitcher.SwitchTheme("LightTheme");
-        private void DarkTheme_Click(object sender, RoutedEventArgs e) => ThemeSwitcher.SwitchTheme("DarkTheme");
-        private void BlueTheme_Click(object sender, RoutedEventArgs e) => ThemeSwitcher.SwitchTheme("BlueTheme");
 
         public List<string> GetGroupList()
         {
@@ -72,7 +88,6 @@ namespace WpfAppLauncher
         {
             if (groupRenderer != null)
             {
-                // グループの順番だけ保存（apps の保存はここでは不要）
                 File.WriteAllText(groupOrderPath, JsonSerializer.Serialize(groupOrder));
             }
         }
