@@ -4,10 +4,16 @@ namespace WpfAppLauncher.Configuration
 {
     public class AppSettings
     {
+        public EnvironmentSettings Environment { get; set; } = new();
         public AppDataSettings AppData { get; set; } = new();
         public DragDropSettings DragDrop { get; set; } = new();
         public ThemeSettings Themes { get; set; } = new();
         public ExtensionSettings Extensions { get; set; } = new();
+    }
+
+    public class EnvironmentSettings
+    {
+        public string? Name { get; set; }
     }
 
     public class AppDataSettings
