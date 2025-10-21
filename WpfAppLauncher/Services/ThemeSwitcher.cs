@@ -1,24 +1,37 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using WpfAppLauncher.Configuration;
 
 namespace WpfAppLauncher.Services
 {
     public static class ThemeSwitcher
     {
-        public static void AddThemeSwitcher(Panel targetPanel, Action<string> onThemeChange)
+        public static void AddThemeSwitcher(Panel targetPanel, IEnumerable<ThemeOption> themeOptions, Action<string> onThemeChange)
         {
-            var lightButton = new Button { Content = "☀", Width = 30, Margin = new Thickness(2) };
-            var darkButton = new Button { Content = "🌙", Width = 30, Margin = new Thickness(2) };
-            var blueButton = new Button { Content = "🔵", Width = 30, Margin = new Thickness(2) };
+            targetPanel.Children.Clear();
 
-            lightButton.Click += (s, e) => onThemeChange("LightTheme");
-            darkButton.Click += (s, e) => onThemeChange("DarkTheme");
-            blueButton.Click += (s, e) => onThemeChange("BlueTheme");
+            foreach (var option in themeOptions ?? Enumerable.Empty<ThemeOption>())
+            {
+                if (string.IsNullOrWhiteSpace(option.Name))
+                {
+                    continue;
+                }
 
-            targetPanel.Children.Add(lightButton);
-            targetPanel.Children.Add(darkButton);
-            targetPanel.Children.Add(blueButton);
+                var button = new Button
+                {
+                    Content = string.IsNullOrWhiteSpace(option.Icon) ? option.Name : option.Icon,
+                    Width = 30,
+                    Margin = new Thickness(2),
+                    ToolTip = option.Tooltip ?? option.Name
+                };
+
+                button.Click += (s, e) => onThemeChange(option.Name);
+
+                targetPanel.Children.Add(button);
+            }
         }
 
         public static void SwitchTheme(string theme)
