@@ -29,7 +29,12 @@ namespace WpfAppLauncher.Configuration
 
         private static IConfigurationRoot BuildConfiguration()
         {
-            var environment = GetEnvironmentName();
+            var baseBuilder = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+            var baseConfiguration = baseBuilder.Build();
+            var environment = GetEnvironmentName(baseConfiguration);
 
             var builder = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
@@ -90,16 +95,29 @@ namespace WpfAppLauncher.Configuration
             }
         }
 
-        private static string GetEnvironmentName()
+        private static string GetEnvironmentName(IConfiguration? configuration)
         {
 #if DEBUG
             const string defaultEnvironment = "Development";
 #else
             const string defaultEnvironment = "Production";
 #endif
-            return Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")
-                   ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
-                   ?? defaultEnvironment;
+            var environmentFromVariables = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")
+                                          ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+            if (!string.IsNullOrWhiteSpace(environmentFromVariables))
+            {
+                return environmentFromVariables;
+            }
+
+            var environmentFromConfiguration = configuration?["Environment:Name"];
+
+            if (!string.IsNullOrWhiteSpace(environmentFromConfiguration))
+            {
+                return environmentFromConfiguration.Trim();
+            }
+
+            return defaultEnvironment;
         }
     }
 }
