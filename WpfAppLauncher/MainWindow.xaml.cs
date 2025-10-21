@@ -19,6 +19,7 @@ namespace WpfAppLauncher
         private readonly string savePath;
         private readonly string groupOrderPath;
         private readonly string iconCacheDir;
+        private readonly string themeStatePath;
         private readonly string[] allowedExtensions;
 
         private List<AppEntry> apps = new();
@@ -37,6 +38,11 @@ namespace WpfAppLauncher
             savePath = Path.Combine(appDataDir, settings.AppData.AppsFileName);
             groupOrderPath = Path.Combine(appDataDir, settings.AppData.GroupOrderFileName);
             iconCacheDir = Path.Combine(appDataDir, settings.AppData.IconCacheDirectoryName);
+            themeStatePath = Path.Combine(
+                appDataDir,
+                string.IsNullOrWhiteSpace(settings.Themes.StateFileName)
+                    ? "theme.json"
+                    : settings.Themes.StateFileName);
             allowedExtensions = settings.DragDrop.AllowedExtensions
                 .Select(extension =>
                     string.IsNullOrWhiteSpace(extension)
@@ -54,11 +60,12 @@ namespace WpfAppLauncher
             groupRenderer = new GroupRenderer(apps, groupOrder, savePath, groupOrderPath, iconCacheDir, GroupPanel);
             groupRenderer.RenderGroups();
 
-            ThemeSwitcher.AddThemeSwitcher(ThemePanel, settings.Themes.Options, ThemeSwitcher.SwitchTheme);
+            ThemeSwitcher.AddThemeSwitcher(ThemePanel, settings.Themes.Options, ApplyTheme);
 
-            if (!string.IsNullOrWhiteSpace(settings.Themes.Default))
+            var initialTheme = ThemePreferenceService.LoadPreferredTheme(themeStatePath);
+            if (!TryApplyTheme(initialTheme, persist: false))
             {
-                ThemeSwitcher.SwitchTheme(settings.Themes.Default);
+                TryApplyTheme(settings.Themes.Default, persist: true);
             }
 
             ExtensionManagerButton.IsEnabled = ExtensionHost.IsInitialized;
@@ -113,6 +120,34 @@ namespace WpfAppLauncher
             };
 
             window.ShowDialog();
+        }
+
+        private void ApplyTheme(string theme)
+        {
+            TryApplyTheme(theme, persist: true);
+        }
+
+        private bool TryApplyTheme(string? theme, bool persist)
+        {
+            if (string.IsNullOrWhiteSpace(theme))
+            {
+                return false;
+            }
+
+            if (!settings.Themes.Options.Any(option =>
+                    string.Equals(option.Name, theme, StringComparison.OrdinalIgnoreCase)))
+            {
+                return false;
+            }
+
+            ThemeSwitcher.SwitchTheme(theme);
+
+            if (persist)
+            {
+                ThemePreferenceService.SavePreferredTheme(themeStatePath, theme);
+            }
+
+            return true;
         }
     }
 }
