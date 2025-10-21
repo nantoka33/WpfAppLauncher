@@ -42,6 +42,9 @@ Global
 		{3EBAD921-6FD5-4341-A3B0-C15AFC59FF26}.Release|x86.ActiveCfg = Release|Any CPU
 		{3EBAD921-6FD5-4341-A3B0-C15AFC59FF26}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+		{3EBAD921-6FD5-4341-A3B0-C15AFC59FF26}.0 = {D286BFE6-2FD5-4666-BD82-1DD69C3E993F}
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
